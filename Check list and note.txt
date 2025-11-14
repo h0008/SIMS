@@ -1,4 +1,4 @@
 Check list and note
-
+HashUtility check for the existence of a database and tables inside that database to execute the user creation process ❌
 Password hash✅
 Password hash converted back into normal password in handling✅

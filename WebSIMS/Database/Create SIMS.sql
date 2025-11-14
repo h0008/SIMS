@@ -1,3 +1,4 @@
+CREATE DATABASE SIMS
 USE [SIMS]
 GO
 /****** Object:  Table [dbo].[__EFMigrationsHistory]    Script Date: 8/7/2025 10:58:17 PM ******/
