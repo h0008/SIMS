@@ -32,8 +32,27 @@ namespace HashUtility
             Console.Write("Enter password: ");
             var password = Console.ReadLine();
 
-            Console.Write("Enter role: ");
-            var role = Console.ReadLine();
+            string? role = null;
+            while (string.IsNullOrEmpty(role))
+            {
+                Console.Write("Choose a role (1: admin, 2: student, 3: faculty): ");
+                var roleInput = Console.ReadLine();
+                switch (roleInput)
+                {
+                    case "1":
+                        role = "admin";
+                        break;
+                    case "2":
+                        role = "student";
+                        break;
+                    case "3":
+                        role = "faculty";
+                        break;
+                    default:
+                        Console.WriteLine("Invalid selection. Please enter a number from 1 to 3.");
+                        break;
+                }
+            }
             // --- End User Details ---
 
             // Hash the password
@@ -78,9 +97,35 @@ namespace HashUtility
                     insertUserCmd.Parameters.AddWithValue("@Role", role);
                     insertUserCmd.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
 
-                    insertUserCmd.ExecuteNonQuery();
-                    Console.WriteLine($"User '{username}' created successfully with a hashed password.");
+                    var rowsAffected = insertUserCmd.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        Console.WriteLine($"User '{username}' created successfully.");
+
+                        // Verify that the user was inserted correctly
+                        var verifyCmd = new SqlCommand("SELECT COUNT(1) FROM Users WHERE Username = @Username", connection);
+                        verifyCmd.Parameters.AddWithValue("@Username", username);
+                        var userExistsAfterInsert = (int)verifyCmd.ExecuteScalar() > 0;
+
+                        if (userExistsAfterInsert)
+                        {
+                            Console.WriteLine($"Verification successful: User '{username}' found in the database.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Verification failed: User '{username}' not found in the database after insert.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Failed to create user '{username}'.");
+                    }
                 }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"A database error occurred: {ex.Message}");
             }
             catch (Exception ex)
             {
